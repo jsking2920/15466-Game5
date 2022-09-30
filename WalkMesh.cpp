@@ -144,20 +144,25 @@ WalkPoint WalkMesh::nearest_walk_point(glm::vec3 const &world_point) const {
 void WalkMesh::walk_in_triangle(WalkPoint const &start, glm::vec3 const &step, WalkPoint *end_, float *time_) const {
 
 	assert(end_);
-	auto &end = *end_;
-
+	auto& end = *end_;
 	assert(time_);
-	auto &time = *time_;
+	auto& time = *time_;
 
-	glm::vec3 step_coords;
-	{ //project 'step' into a barycentric-coordinates direction:
-		//TODO
-		step_coords = glm::vec3(0.0f);
+	glm::vec3 const& a = vertices[start.indices.x];
+	glm::vec3 const& b = vertices[start.indices.y];
+	glm::vec3 const& c = vertices[start.indices.z];
+
+	// Transform 'step' into a barycentric velocity on (a,b,c)
+	end.weights = barycentric_weights(a, b, c, to_world_point(start) + step);
+	glm::vec3 bary_vel = end.weights - start.weights;
+
+	// Check when/if this velocity pushes start.weights into an edge
+	if (bary_vel.x >= 0.0f && bary_vel.y >= 0.0f && bary_vel.z >= 0.0f) {
+		// Stayed within start triangle
+		end.indices = start.indices;
+		time = 1.0f; //if no edge is crossed, event will just be taking the whole step:
+		return;
 	}
-	
-	//if no edge is crossed, event will just be taking the whole step:
-	time = 1.0f;
-	end = start;
 
 	//figure out which edge (if any) is crossed first.
 	// set time and end appropriately.
