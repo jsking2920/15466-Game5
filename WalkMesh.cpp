@@ -215,23 +215,26 @@ bool WalkMesh::cross_edge(WalkPoint const &start, WalkPoint *end_, glm::quat *ro
 
 	assert(start.weights.z == 0.0f); //*must* be on an edge.
 	glm::uvec2 edge = glm::uvec2(start.indices);
+    //TODO: check if edge (start.indices.x, start.indices.y) has a triangle on the other side:
+    //  hint: remember 'next_vertex'!
+    auto f = next_vertex.find(glm::uvec2(start.indices.y, start.indices.x));
+    if(f == next_vertex.end()) {
+        //no opposite triangle
+        end = start;
+        rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); //identity quat (wxyz init order)
+        return false;
+    }
+    end.indices = glm::vec3(start.indices.y, start.indices.x, f->second);
+    end.weights = glm::vec3(start.weights.y, start.weights.x, 0);
 
-	//check if 'edge' is a non-boundary edge:
-	if (edge.x == edge.y /* <-- TODO: use a real check, this is just here so code compiles */) {
-		//it is!
+    //  TODO: compute rotation that takes starting triangle's normal to ending triangle's normal:
+    //  hint: look up 'glm::rotation' in the glm/gtx/quaternion.hpp header
+    glm::vec3 start_normal = to_world_triangle_normal(start);
+    glm::vec3 end_normal = to_world_triangle_normal(end);
+    rotation = glm::rotation(start_normal, end_normal);
 
-		//make 'end' represent the same (world) point, but on triangle (edge.y, edge.x, [other point]):
-		//TODO
-
-		//make 'rotation' the rotation that takes (start.indices)'s normal to (end.indices)'s normal:
-		//TODO
-
-		return true;
-	} else {
-		end = start;
-		rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		return false;
-	}
+    //return 'true' if there was another triangle, 'false' otherwise:
+    return true;
 }
 
 WalkMeshes::WalkMeshes(std::string const &filename) {
