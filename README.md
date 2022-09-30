@@ -1,6 +1,6 @@
 # (TODO: your game's title)
 
-Author: Scott King
+Author: Scott King, William Ozeas <br>
 Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
 
 Screen Shot:
