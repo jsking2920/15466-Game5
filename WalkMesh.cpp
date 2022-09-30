@@ -157,19 +157,53 @@ void WalkMesh::walk_in_triangle(WalkPoint const &start, glm::vec3 const &step, W
 	glm::vec3 bary_vel = end.weights - start.weights;
 
 	// Check when/if this velocity pushes start.weights into an edge
-	if (bary_vel.x >= 0.0f && bary_vel.y >= 0.0f && bary_vel.z >= 0.0f) {
+	if (end.weights.x >= 0.0f && end.weights.y >= 0.0f && end.weights.z >= 0.0f) {
 		// Stayed within start triangle
 		end.indices = start.indices;
 		time = 1.0f; //if no edge is crossed, event will just be taking the whole step:
 		return;
 	}
+	else {
+		float min_time = 1.0f;
+		uint8_t v_i = 0;
+		float t;
 
-	//figure out which edge (if any) is crossed first.
-	// set time and end appropriately.
-	//TODO
+		// Iterate through edges to figure out which we crossed and when
+		for (uint8_t i = 0; i < 3; i++) {
+			if (end.weights[i] < 0) {
+				// start.weights.x + (t * bary_vel.x) = 0
+				// -start.weights.x / bary_vel.x = t
+				t = -start.weights[i] / bary_vel[i];
+				if (t < min_time) {
+					min_time = t;
+					v_i = i;
+				}
+			}
+		}
 
-	//Remember: our convention is that when a WalkPoint is on an edge,
-	// then wp.weights.z == 0.0f (so will likely need to re-order the indices)
+		time = min_time;
+		end.weights = start.weights + (bary_vel * min_time);
+
+		// Our convention is that when a WalkPoint is on an edge,
+		// then wp.weights.z == 0.0f (so will likely need to re-order the indices)
+		switch (v_i) {
+			case 0:
+				// Crossed y-z edge
+				end.indices = glm::vec3(start.indices.y, start.indices.z, start.indices.x);
+				end.weights = glm::vec3(end.weights.y, end.weights.z, 0.0f);
+				break;
+			case 1:
+				// crossed z-x edge
+				end.indices = glm::vec3(start.indices.z, start.indices.x, start.indices.y);
+				end.weights = glm::vec3(end.weights.z, end.weights.x, 0.0f);
+				break;
+			case 2:
+				// crossed x-y edge
+				end.indices = start.indices;
+				end.weights = glm::vec3(end.weights.x, end.weights.y, 0.0f);
+				break;
+		}
+	}
 }
 
 bool WalkMesh::cross_edge(WalkPoint const &start, WalkPoint *end_, glm::quat *rotation_) const {
