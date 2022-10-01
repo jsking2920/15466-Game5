@@ -46,20 +46,23 @@ Load< WalkMeshes > main_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
 
 PlayMode::PlayMode() : scene(*main_scene) {
 
+	Scene::Transform* fire_point = nullptr; // reference for players firepoint to be used in Gun construction
+
 	// Find player mesh and transform
 	for (auto& transform : scene.transforms) {
 		if (transform.name == "Player") player.transform = &transform;
-		if (transform.name == "FirePoint") player.fire_point = &transform;
+		if (transform.name == "FirePoint") fire_point = &transform;
 	}
 	if (player.transform == nullptr) throw std::runtime_error("Player transform not found.");
-	if (player.fire_point == nullptr) throw std::runtime_error("FirePoint transform not found.");
+	if (fire_point == nullptr) throw std::runtime_error("FirePoint transform not found.");
 
 	// Grab camera in scene for player
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
 	player.camera = &scene.cameras.back();
 	player.camera->transform->parent = player.transform;
 
-	player.fire_point->parent = player.transform;
+	// Initialize default gun
+	player.cur_gun = Gun(player.transform, fire_point, uint16_t(24), 10.0f, 0.2f, 2.5f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
