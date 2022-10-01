@@ -38,7 +38,7 @@ Load< Scene > main_scene(LoadTagDefault, []() -> Scene const * {
 });
 
 WalkMesh const *walkmesh = nullptr;
-Load< WalkMeshes > phonebank_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
+Load< WalkMeshes > main_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
 	WalkMeshes *ret = new WalkMeshes(data_path("main.w"));
 	walkmesh = &ret->lookup("WalkMesh");
 	return ret;
@@ -57,8 +57,8 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	player.camera->near = 0.01f;
 	player.camera->transform->parent = player.transform;
 
-	//player's eyes are 1.8 units above the ground:
-	player.camera->transform->position = glm::vec3(0.0f, 0.0f, 1.8f);
+	//player's eyes are 1.8 units above the ground and 0.3 units forward from center:
+	player.camera->transform->position = glm::vec3(0.0f, 0.5f, 1.8f);
 
 	//rotate camera facing direction (-z) to player facing direction (+y):
 	player.camera->transform->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
