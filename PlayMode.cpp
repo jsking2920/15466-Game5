@@ -62,7 +62,7 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	player.camera->transform->parent = player.transform;
 
 	// Initialize default gun
-	player.cur_gun = Gun(player.transform, fire_point, uint16_t(24), 10.0f, 0.2f, 2.5f);
+	player.cur_gun = Gun(player.transform, fire_point, int16_t(24), 10.0f, 0.2f, 2.5f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
@@ -93,6 +93,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.downs += 1;
 			down.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_r) {
+			r.downs += 1;
+			r.pressed = true;
+			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_a) {
@@ -107,12 +111,20 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_s) {
 			down.pressed = false;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_r) {
+			r.pressed = false;
+			return true;
 		}
 	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
 		if (SDL_GetRelativeMouseMode() == SDL_FALSE) {
-			SDL_SetRelativeMouseMode(SDL_TRUE);
-			return true;
+			SDL_SetRelativeMouseMode(SDL_TRUE);	
 		}
+		lmb.downs += 1;
+		lmb.pressed = true;
+		return true;
+	} else if (evt.type == SDL_MOUSEBUTTONUP) {
+		lmb.pressed = false;
+		return true;
 	} else if (evt.type == SDL_MOUSEMOTION) {
 		if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
 			glm::vec2 motion = glm::vec2(
@@ -139,7 +151,8 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void PlayMode::update(float elapsed) {
-	//player walking:
+
+	// Player walking
 	{
 		//combine inputs into a move:
 		constexpr float PlayerSpeed = 3.0f;
@@ -224,11 +237,22 @@ void PlayMode::update(float elapsed) {
 		*/
 	}
 
+	// Shooting
+	{
+		player.cur_gun.UpdateTimer(elapsed);
+
+		if (lmb.pressed) {
+			player.cur_gun.Shoot(player.transform->rotation * glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+	}
+
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+	lmb.downs = 0;
+	r.downs = 0;
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
@@ -282,6 +306,11 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		float ofs = 2.0f / drawable_size.y;
 		lines.draw_text("Mouse motion looks; WASD moves; escape ungrabs mouse",
 			glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
+			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+
+		lines.draw_text("Ammo: " + std::to_string(player.cur_gun.cur_ammo),
+			glm::vec3(0.0f, 0.0f, 0.0),
 			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
 	}
