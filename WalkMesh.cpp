@@ -207,37 +207,37 @@ void WalkMesh::walk_in_triangle(WalkPoint const &start, glm::vec3 const &step, W
 }
 
 bool WalkMesh::cross_edge(WalkPoint const &start, WalkPoint *end_, glm::quat *rotation_) const {
+
 	assert(end_);
 	auto &end = *end_;
-
 	assert(rotation_);
 	auto &rotation = *rotation_;
 
-	assert(start.weights.z == 0.0f); //*must* be on an edge.
-	//glm::uvec2 edge = glm::uvec2(start.indices);
-    //TODO: check if edge (start.indices.x, start.indices.y) has a triangle on the other side:
-    //  hint: remember 'next_vertex'!
+	assert(start.weights.z == 0.0f); // *must* be on an edge.
+
+    // Check if edge (start.indices.x, start.indices.y) has a triangle on the other side:
     auto f = next_vertex.find(glm::uvec2(start.indices.y, start.indices.x));
-    if(f == next_vertex.end()) {
+
+    if (f == next_vertex.end()) {
         //no opposite triangle
         end = start;
         rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); //identity quat (wxyz init order)
         return false;
     }
+
     end.indices = glm::vec3(start.indices.y, start.indices.x, f->second);
     end.weights = glm::vec3(start.weights.y, start.weights.x, 0);
 
-    //  TODO: compute rotation that takes starting triangle's normal to ending triangle's normal:
-    //  hint: look up 'glm::rotation' in the glm/gtx/quaternion.hpp header
+    //  Compute rotation that takes starting triangle's normal to ending triangle's normal:
     glm::vec3 start_normal = to_world_triangle_normal(start);
     glm::vec3 end_normal = to_world_triangle_normal(end);
     rotation = glm::rotation(start_normal, end_normal);
 
-    //return 'true' if there was another triangle, 'false' otherwise:
     return true;
 }
 
 WalkMeshes::WalkMeshes(std::string const &filename) {
+
 	std::ifstream file(filename, std::ios::binary);
 
 	std::vector< glm::vec3 > vertices;
@@ -307,11 +307,11 @@ WalkMeshes::WalkMeshes(std::string const &filename) {
 		if (!ret.second) {
 			throw std::runtime_error("WalkMesh with duplicated name '" + name + "' in '" + filename + "'");
 		}
-
 	}
 }
 
 WalkMesh const &WalkMeshes::lookup(std::string const &name) const {
+
 	auto f = meshes.find(name);
 	if (f == meshes.end()) {
 		throw std::runtime_error("WalkMesh with name '" + name + "' not found.");
