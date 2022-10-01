@@ -11,6 +11,8 @@ struct Gun {
 
 	void UpdateTimer(float elapsed); // call every frame with elapsed seconds
 	bool Shoot(glm::vec3 dir); // returns if bullet was actually shot
+	bool Reload(); // returns false if gun fails to reload (only happens if it was already fully loaded)
+
 
 	// Transform of bullet spawning location
 	Scene::Transform* fire_point = nullptr;
@@ -28,6 +30,7 @@ struct Gun {
 
 private:
 	float internal_timer = fire_rate_delay; // used for fire rate; gun shoots on 0
+	float reload_timer = reload_time; // used for reloading
 	bool shooting_prev = false; // true if player was shooting this gun last frame (holding shoot button)
 };
 

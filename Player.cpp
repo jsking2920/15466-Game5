@@ -20,20 +20,41 @@ Gun::Gun(Scene::Transform* player_transform, Scene::Transform* fire_point, int16
 
 void Gun::UpdateTimer(float elapsed) {
 
-	internal_timer = glm::clamp(internal_timer - elapsed, 0.0f, this->fire_rate_delay);
+	if (cur_state == reloading) {
+		reload_timer -= elapsed;
+
+		if (reload_time <= 0.0f) {
+			cur_state = idle;
+			cur_ammo = max_ammo;
+		}
+	}
+	else {
+		internal_timer = glm::clamp(internal_timer - elapsed, 0.0f, fire_rate_delay);
+	}
 }
 
 bool Gun::Shoot(glm::vec3 dir) {
 
 	if (internal_timer <= 0.0f && cur_ammo > 0) {
-		internal_timer = this->fire_rate_delay;
+		internal_timer = fire_rate_delay;
 
-		std::cout << "Shooting in dir: x ->" << dir.x << " y ->" << dir.y << "z ->" << dir.z << "\nAt vel: " << this->muzzle_velocity << std::endl;
+		std::cout << "Shooting in dir: x ->" << dir.x << " y ->" << dir.y << "z ->" << dir.z << "\nAt vel: " << muzzle_velocity << std::endl;
 
-		cur_ammo = glm::clamp(--cur_ammo, int16_t(0), this->max_ammo);
+		cur_ammo = glm::clamp(--cur_ammo, int16_t(0), max_ammo);
 
 		return true;
 	}
 
 	return false;
+}
+
+bool Gun::Reload() {
+	
+	if (cur_ammo == max_ammo) {
+		return false;
+	}
+
+	reload_timer = reload_time;
+	cur_state = reloading;
+	return true;
 }

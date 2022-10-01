@@ -247,6 +247,9 @@ void PlayMode::update(float elapsed) {
 		if (lmb.pressed) {
 			player.cur_gun.Shoot(player.transform->rotation * glm::vec3(0.0f, 1.0f, 0.0f));
 		}
+		else if (r.downs == 1) {
+			player.cur_gun.Reload();
+		}
 	}
 
 	//reset button press counters:
