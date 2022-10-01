@@ -45,27 +45,24 @@ Load< WalkMeshes > main_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
 });
 
 PlayMode::PlayMode() : scene(*main_scene) {
-	//create a player transform:
-	scene.transforms.emplace_back();
-	player.transform = &scene.transforms.back();
 
-	//create a player camera attached to a child of the player transform:
-	scene.transforms.emplace_back();
-	scene.cameras.emplace_back(&scene.transforms.back());
+	// Find player mesh and transform
+	for (auto& transform : scene.transforms) {
+		if (transform.name == "Player") player.transform = &transform;
+		if (transform.name == "FirePoint") player.fire_point = &transform;
+	}
+	if (player.transform == nullptr) throw std::runtime_error("Player transform not found.");
+	if (player.fire_point == nullptr) throw std::runtime_error("FirePoint transform not found.");
+
+	// Grab camera in scene for player
+	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
 	player.camera = &scene.cameras.back();
-	player.camera->fovy = glm::radians(60.0f);
-	player.camera->near = 0.01f;
 	player.camera->transform->parent = player.transform;
 
-	//player's eyes are 1.8 units above the ground and 0.3 units forward from center:
-	player.camera->transform->position = glm::vec3(0.0f, 0.5f, 1.8f);
-
-	//rotate camera facing direction (-z) to player facing direction (+y):
-	player.camera->transform->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	player.fire_point->parent = player.transform;
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
-
 }
 
 PlayMode::~PlayMode() {
@@ -119,15 +116,17 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				evt.motion.xrel / float(window_size.y),
 				-evt.motion.yrel / float(window_size.y)
 			);
-			glm::vec3 upDir = walkmesh->to_world_smooth_normal(player.at);
-			player.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, upDir) * player.transform->rotation;
+			glm::vec3 up_dir = walkmesh->to_world_smooth_normal(player.at);
+			player.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, up_dir) * player.transform->rotation;
 
-			float pitch = glm::pitch(player.camera->transform->rotation);
-			pitch += motion.y * player.camera->fovy;
-			//camera looks down -z (basically at the player's feet) when pitch is at zero.
-			pitch = std::min(pitch, 0.95f * 3.1415926f);
-			pitch = std::max(pitch, 0.05f * 3.1415926f);
-			player.camera->transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+			//float pitch = glm::pitch(player.camera->transform->rotation);
+			float pitch = motion.y * player.camera->fovy;
+			// Constrain pitch to nearly straight down and nearly straight up
+			float end_pitch = glm::pitch(player.camera->transform->rotation) + pitch;
+			if (end_pitch > 0.95f * 3.1415926f || end_pitch < 0.05f * 3.1415926f) {
+				pitch = 0.0f;
+			}
+			player.camera->transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f)) * player.camera->transform->rotation;
 
 			return true;
 		}

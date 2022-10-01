@@ -10,8 +10,10 @@ private:
 
 public:
 	WalkPoint at;
-	//transform is at player's feet and will be yawed by mouse left/right motion:
+	// Transform of the player mesh in the scene; will be yawed by mouse left/right motion:
 	Scene::Transform* transform = nullptr;
-	//camera is at player's head and will be pitched by mouse up/down motion:
+	// Transform of bullet spawning location
+	Scene::Transform* fire_point = nullptr;
+	// Camera in scene, at head of player; will be pitched by mouse up/down motion:
 	Scene::Camera* camera = nullptr;
 };
