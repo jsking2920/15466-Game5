@@ -1,7 +1,7 @@
 #include "Mode.hpp"
 
 #include "Scene.hpp"
-#include "WalkMesh.hpp"
+#include "Player.hpp"
 
 #include <glm/glm.hpp>
 
@@ -29,11 +29,5 @@ struct PlayMode : Mode {
 	Scene scene;
 
 	//player info:
-	struct Player {
-		WalkPoint at;
-		//transform is at player's feet and will be yawed by mouse left/right motion:
-		Scene::Transform *transform = nullptr;
-		//camera is at player's head and will be pitched by mouse up/down motion:
-		Scene::Camera *camera = nullptr;
-	} player;
+	Player player = Player();
 };

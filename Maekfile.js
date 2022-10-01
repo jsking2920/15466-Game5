@@ -144,7 +144,8 @@ const game_names = [
 	maek.CPP('Sound.cpp'),
 	maek.CPP('load_wav.cpp'),
 	maek.CPP('load_opus.cpp'),
-	maek.CPP('Enemy.cpp')
+	maek.CPP('Enemy.cpp'),
+	maek.CPP('Player.cpp')
 ];
 
 const common_names = [
