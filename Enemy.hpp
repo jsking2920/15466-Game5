@@ -19,7 +19,7 @@ struct Enemy {
     Enemy(Scene::Transform *_transform, Scene::Transform *_target, uint32_t id, EnemyManager *_manager);
 
     bool update(float elapsed); //returns true iff colliding w player
-    bool check_collision_with_object(Scene::Transform *collision, uint32_t radius);
+    bool check_collision_with_object(Scene::Transform *collision, float radius);
 };
 
 struct EnemyManager {

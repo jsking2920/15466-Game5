@@ -14,7 +14,7 @@ bool Enemy::update(float elapsed) {
 }
 
 //checks sphere collision with transform collision with radius radius
-bool Enemy::check_collision_with_object(Scene::Transform *collision, uint32_t radius) {
+bool Enemy::check_collision_with_object(Scene::Transform *collision, float radius) {
     glm::vec3 vec_to_player = collision->position - transform->position;
     return glm::length(vec_to_player) < radius + ENEMY_HURTBOX_RADIUS;
 }
@@ -26,7 +26,7 @@ EnemyManager::EnemyManager(Scene::Transform *_player) : player(_player) {
 
 bool EnemyManager::update(float elapsed) {
     bool hit = false;
-    for(std::pair<uint16_t, std::shared_ptr<Enemy>> pair : enemies) {
+    for(std::pair<uint32_t, std::shared_ptr<Enemy>> pair : enemies) {
         hit = hit && pair.second->update(elapsed);
     }
     return hit;
