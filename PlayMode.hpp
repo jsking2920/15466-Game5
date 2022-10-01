@@ -3,11 +3,22 @@
 #include "Scene.hpp"
 #include "Player.hpp"
 #include "TextRenderer.hpp"
+#include "Mesh.hpp"
+#include "Load.hpp"
+#include "data_path.hpp"
+#include "LitColorTextureProgram.hpp"
 
 #include <glm/glm.hpp>
 
 #include <vector>
 #include <deque>
+
+GLuint meshes_for_lit_color_texture_program = 0;
+Load< MeshBuffer > main_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+    MeshBuffer const *ret = new MeshBuffer(data_path("main.pnct"));
+    meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+    return ret;
+});;
 
 struct PlayMode : Mode {
 	PlayMode();
