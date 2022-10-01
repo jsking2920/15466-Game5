@@ -31,7 +31,7 @@ struct Gun {
 private:
 	float internal_timer = fire_rate_delay; // used for fire rate; gun shoots on 0
 	float reload_timer = reload_time; // used for reloading
-	bool shooting_prev = false; // true if player was shooting this gun last frame (holding shoot button)
+	//bool shooting_prev = false; // true if player was shooting this gun last frame (holding shoot button)
 };
 
 class Player {
