@@ -2,6 +2,8 @@
 #define INC_15466_GAME5_ENEMY_HPP
 
 #include "Scene.hpp"
+#include "LitColorTextureProgram.hpp"
+#include "Mesh.hpp"
 
 #define ENEMY_HURTBOX_RADIUS 2.f
 #define PLAYER_HURTBOX_RADIUS 2.f

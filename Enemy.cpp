@@ -1,8 +1,13 @@
 #include "Enemy.hpp"
 #include "glm/gtx/quaternion.hpp"
-#include "LitColorTextureProgram.hpp"
-#include "Mesh.hpp"
-#include "PlayMode.hpp"
+#include "data_path.hpp"
+
+GLuint _meshes_for_lit_color_texture_program = 0;
+Load< MeshBuffer > _main_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+    MeshBuffer const *ret = new MeshBuffer(data_path("main.pnct"));
+    _meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+    return ret;
+});
 
 Enemy::Enemy(Scene::Transform *_transform, Scene::Transform *_target, uint32_t _id, EnemyManager *_manager) :
 transform(_transform), target(_target),  manager(_manager), id(_id)
@@ -75,14 +80,14 @@ void EnemyManager::spawn_enemy() {
     scene.transforms.back().scale = spawn_point->scale;
 //    scene.transforms.back().parent = spawn_point;
 
-    Mesh const &mesh = main_meshes->lookup("Enemy");
+    Mesh const &mesh = _main_meshes->lookup("Enemy");
 
     scene.drawables.emplace_back(&scene.transforms.back());
     Scene::Drawable &drawable = scene.drawables.back();
 
     drawable.pipeline = lit_color_texture_program_pipeline;
 
-    drawable.pipeline.vao = meshes_for_lit_color_texture_program;
+    drawable.pipeline.vao = _meshes_for_lit_color_texture_program;
     drawable.pipeline.type = mesh.type;
     drawable.pipeline.start = mesh.start;
     drawable.pipeline.count = mesh.count;

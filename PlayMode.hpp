@@ -1,3 +1,4 @@
+#pragma once
 #include "Mode.hpp"
 
 #include "Scene.hpp"
@@ -12,13 +13,6 @@
 
 #include <vector>
 #include <deque>
-
-GLuint meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > main_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-    MeshBuffer const *ret = new MeshBuffer(data_path("main.pnct"));
-    meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
-    return ret;
-});;
 
 struct PlayMode : Mode {
 	PlayMode();
