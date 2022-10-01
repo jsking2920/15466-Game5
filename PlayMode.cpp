@@ -66,6 +66,9 @@ PlayMode::PlayMode() : scene(*main_scene) {
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
+
+	// Set up text renderer
+	hud_text = new TextRenderer(data_path("SpecialElite-Regular.ttf").c_str(), hud_font_size);
 }
 
 PlayMode::~PlayMode() {
@@ -309,10 +312,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
 
-		lines.draw_text("Ammo: " + std::to_string(player.cur_gun.cur_ammo),
-			glm::vec3(0.0f, 0.0f, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+		std::string ammo_text = "Ammo: " + std::to_string(player.cur_gun.cur_ammo);
+		hud_text->draw(ammo_text.c_str(), 0.8f * float(drawable_size.x), 0.1f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
 	}
 	GL_ERRORS();
 }
