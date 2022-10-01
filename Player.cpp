@@ -28,8 +28,11 @@ void Gun::UpdateTimer(float elapsed) {
 			cur_ammo = max_ammo;
 		}
 	}
-	else {
+	else if (cur_state == shooting) {
 		internal_timer = glm::clamp(internal_timer - elapsed, 0.0f, fire_rate_delay);
+	}
+	else {
+		internal_timer = 0.0f; // means that you can tap fire at infinite fire_rate
 	}
 }
 
@@ -50,7 +53,7 @@ bool Gun::Shoot(glm::vec3 dir) {
 
 bool Gun::Reload() {
 	
-	if (cur_ammo == max_ammo) {
+	if (cur_ammo == max_ammo || cur_state == reloading) {
 		return false;
 	}
 

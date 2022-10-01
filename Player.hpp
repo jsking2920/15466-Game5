@@ -11,7 +11,7 @@ struct Gun {
 
 	void UpdateTimer(float elapsed); // call every frame with elapsed seconds
 	bool Shoot(glm::vec3 dir); // returns if bullet was actually shot
-	bool Reload(); // returns false if gun fails to reload (only happens if it was already fully loaded)
+	bool Reload(); // returns false if gun fails to reload (only happens if it was already fully loaded or is already being reloaded)
 
 
 	// Transform of bullet spawning location

@@ -130,10 +130,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				evt.motion.xrel / float(window_size.y),
 				-evt.motion.yrel / float(window_size.y)
 			);
-			glm::vec3 up_dir = walkmesh->to_world_smooth_normal(player.at);
-			player.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, up_dir) * player.transform->rotation;
+			// Player rotation locked to z-axis rotation
+			player.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, glm::vec3(0.0f, 0.0f, 1.0f)) * player.transform->rotation;
 
-			//float pitch = glm::pitch(player.camera->transform->rotation);
 			float pitch = motion.y * player.camera->fovy;
 			// Constrain pitch to nearly straight down and nearly straight up
 			float end_pitch = glm::pitch(player.camera->transform->rotation) + pitch;
@@ -216,24 +215,6 @@ void PlayMode::update(float elapsed) {
 
 		//update player's position to respect walking:
 		player.transform->position = walkmesh->to_world_point(player.at);
-
-		{ //update player's rotation to respect local (smooth) up-vector:
-			
-			glm::quat adjust = glm::rotation(
-				player.transform->rotation * glm::vec3(0.0f, 0.0f, 1.0f), //current up vector
-				walkmesh->to_world_smooth_normal(player.at) //smoothed up vector at walk location
-			);
-			player.transform->rotation = glm::normalize(adjust * player.transform->rotation);
-		}
-
-		/*
-		glm::mat4x3 frame = camera->transform->make_local_to_parent();
-		glm::vec3 right = frame[0];
-		//glm::vec3 up = frame[1];
-		glm::vec3 forward = -frame[2];
-
-		camera->transform->position += move.x * right + move.y * forward;
-		*/
 	}
 
 	// Shooting
