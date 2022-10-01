@@ -1,24 +1,14 @@
 #include "PlayMode.hpp"
 
-#include "LitColorTextureProgram.hpp"
 
 #include "DrawLines.hpp"
-#include "Mesh.hpp"
-#include "Load.hpp"
 #include "gl_errors.hpp"
-#include "data_path.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include <random>
 
-GLuint meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > main_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("main.pnct"));
-	meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
-	return ret;
-});
 
 Load< Scene > main_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("main.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
