@@ -8,6 +8,7 @@
 #include "Load.hpp"
 #include "data_path.hpp"
 #include "LitColorTextureProgram.hpp"
+#include "Enemy.hpp"
 
 #include <glm/glm.hpp>
 
@@ -24,6 +25,8 @@ struct PlayMode : Mode {
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	//----- game state -----
+
+    std::shared_ptr<EnemyManager> enemy_manager;
 
 	// Input tracking
 	struct Button {

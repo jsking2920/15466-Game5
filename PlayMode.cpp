@@ -43,14 +43,26 @@ Load< WalkMeshes > main_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
 PlayMode::PlayMode() : scene(*main_scene) {
 
 	Scene::Transform* fire_point = nullptr; // reference for players firepoint to be used in Gun construction
+    Scene::Transform* enemy = nullptr;
+    std::vector<Scene::Transform*> spawn_points;
 
 	// Find player mesh and transform
 	for (auto& transform : scene.transforms) {
 		if (transform.name == "Player") player.transform = &transform;
 		if (transform.name == "FirePoint") fire_point = &transform;
+        if (transform.name == "Enemy") {
+            std::cout <<"found enemy\n";
+            enemy = &transform;
+        }
+        if (transform.name == "EnemySpawn") {
+            std::cout << "found spawner\n";
+            spawn_points.push_back(&transform);
+        }
 	}
 	if (player.transform == nullptr) throw std::runtime_error("Player transform not found.");
 	if (fire_point == nullptr) throw std::runtime_error("FirePoint transform not found.");
+    if (enemy == nullptr) throw std::runtime_error("enemy transform not found.");
+    if (spawn_points.size() == 0) throw std::runtime_error("spawn point transform not found.");
 
 	// Grab camera in scene for player
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
@@ -65,6 +77,9 @@ PlayMode::PlayMode() : scene(*main_scene) {
 
 	// Set up text renderer
 	hud_text = new TextRenderer(data_path("SpecialElite-Regular.ttf").c_str(), hud_font_size);
+
+    //using shared pointer to ensure cleanup and enable usage of a pointer for definition/declaration separation
+    enemy_manager = std::make_shared<EnemyManager>(player.transform, spawn_points, scene);
 }
 
 PlayMode::~PlayMode() {
@@ -215,6 +230,12 @@ void PlayMode::update(float elapsed) {
 
 		//update player's position to respect walking:
 		player.transform->position = walkmesh->to_world_point(player.at);
+
+        if(enemy_manager->update(elapsed)) {
+            //hit
+            std::cout << "Test\n";
+            enemy_manager->reset();
+        };
 	}
 
 	// Shooting
