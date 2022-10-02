@@ -79,7 +79,7 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	hud_text = new TextRenderer(data_path("SpecialElite-Regular.ttf").c_str(), hud_font_size);
 
     //using shared pointer to ensure cleanup and enable usage of a pointer for definition/declaration separation
-    enemy_manager = std::make_shared<EnemyManager>(player.transform, spawn_points, scene);
+    enemy_manager = std::make_shared<EnemyManager>(player.transform, spawn_points, scene, &main_meshes->lookup("Enemy"), meshes_for_lit_color_texture_program);
 }
 
 PlayMode::~PlayMode() {

@@ -122,6 +122,8 @@ struct Scene {
 	std::list< Camera > cameras;
 	std::list< Light > lights;
 
+    std::function< void(Scene &, Transform *, std::string const &) > const *_on_drawable;
+
 	//The "draw" function provides a convenient way to pass all the things in a scene to OpenGL:
 	void draw(Camera const &camera) const;
 

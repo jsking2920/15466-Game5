@@ -5,13 +5,6 @@
 #include "data_path.hpp"
 #include <iostream>
 
-GLuint _meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > _main_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-    MeshBuffer const *ret = new MeshBuffer(data_path("main.pnct"));
-    _meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
-    return ret;
-});
-
 Enemy::Enemy(Scene::Transform *_transform, Scene::Transform *_target, uint32_t _id, EnemyManager *_manager) :
 transform(_transform), target(_target),  manager(_manager), id(_id)
 {
@@ -41,8 +34,8 @@ bool Enemy::check_collision_with_object(Scene::Transform *collision, float radiu
 }
 
 //enemy manager
-EnemyManager::EnemyManager(Scene::Transform *_player, std::vector<Scene::Transform *> &_spawnpoints, Scene &_scene) :
-    spawnpoints(std::move(_spawnpoints)), player(_player), scene(_scene) {
+EnemyManager::EnemyManager(Scene::Transform *_player, std::vector<Scene::Transform *> &_spawnpoints, Scene &_scene, const Mesh *_mesh, GLuint _vao) :
+    spawnpoints(std::move(_spawnpoints)), player(_player), scene(_scene), mesh(_mesh), vao(_vao) {
     spawn_enemy();
 }
 
@@ -100,22 +93,24 @@ void EnemyManager::spawn_enemy() {
     scene.transforms.back().scale = spawn_point->scale;
 //    scene.transforms.back().parent = spawn_point;
 
-    Mesh const &mesh = _main_meshes->lookup("Enemy");
+    //Mesh const &mesh = _main_meshes->lookup("Enemy");
 
     scene.drawables.emplace_back(&scene.transforms.back());
     Scene::Drawable &drawable = scene.drawables.back();
 
     drawable.pipeline = lit_color_texture_program_pipeline;
 
-    drawable.pipeline.vao = _meshes_for_lit_color_texture_program;
-    drawable.pipeline.type = mesh.type;
-    drawable.pipeline.start = mesh.start;
-    drawable.pipeline.count = mesh.count;
-//    Mesh const &mesh = main_meshes->lookup(mesh_name);
+    drawable.pipeline.vao = vao;
+    drawable.pipeline.type = mesh->type;
+    drawable.pipeline.start = mesh->start;
+    drawable.pipeline.count = mesh->count;
+
+//    scene._on_drawable(scene, scene.transforms.back(), "Enemy");
 
     std::shared_ptr<Enemy> new_enemy = std::make_shared<Enemy>(&scene.transforms.back(),player, current_id, this);
     enemies.insert(std::pair<uint32_t, std::shared_ptr<Enemy>>(current_id, new_enemy));
     current_id++;
 }
+
 
 

@@ -30,7 +30,8 @@ struct EnemyManager {
     std::vector<Scene::Transform *> spawnpoints;
     Scene::Transform *player;
     Scene &scene;
-
+    const Mesh *mesh;
+    GLuint vao;
 
     std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies; //ID to Enemy
     uint32_t current_id = 0;
@@ -38,7 +39,7 @@ struct EnemyManager {
     float time_elapsed = 0;
     float spawn_timer = 0;
 
-    EnemyManager(Scene::Transform *_player, std::vector<Scene::Transform *> &_spawnpoints, Scene &scene);
+    EnemyManager(Scene::Transform *_player, std::vector<Scene::Transform *> &_spawnpoints, Scene &_scene, const Mesh *_mesh, GLuint _vao);
 
     bool update(float elapsed); //returns true iff an enemy is colliding w player
     //most likely we should be calling for each bullet and each enemy check collision with object

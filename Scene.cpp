@@ -165,10 +165,12 @@ void Scene::draw(glm::mat4 const &world_to_clip, glm::mat4x3 const &world_to_lig
 	GL_ERRORS();
 }
 
+//void Scene::load_new()
 
 void Scene::load(std::string const &filename,
 	std::function< void(Scene &, Transform *, std::string const &) > const &on_drawable) {
 
+    _on_drawable = &on_drawable;
 	std::ifstream file(filename, std::ios::binary);
 
 	std::vector< char > names;
