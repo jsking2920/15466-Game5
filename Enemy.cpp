@@ -4,6 +4,7 @@
 #include "glm/gtx/quaternion.hpp"
 #include "data_path.hpp"
 #include <iostream>
+#include <algorithm>
 
 Enemy::Enemy(Scene::Transform *_transform, Scene::Transform *_target, uint32_t _id, EnemyManager *_manager) :
 transform(_transform), target(_target),  manager(_manager), id(_id)
