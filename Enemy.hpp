@@ -5,9 +5,9 @@
 #include "LitColorTextureProgram.hpp"
 #include "Mesh.hpp"
 
-#define ENEMY_HURTBOX_RADIUS 2.f
-#define PLAYER_HURTBOX_RADIUS 2.f
-#define ENEMY_SPEED 1.0f
+#define ENEMY_HURTBOX_RADIUS 1.f
+#define PLAYER_HURTBOX_RADIUS 1.f
+#define ENEMY_SPEED 2.0f
 #define MIN_SPAWN_TIMER 0.5f
 #define ENEMY_SPAWN_DISTANCE 10.f
 
@@ -27,17 +27,18 @@ struct Enemy {
 };
 
 struct EnemyManager {
-    std::vector<Scene::Transform *> &spawnpoints;
+    std::vector<Scene::Transform *> spawnpoints;
     Scene::Transform *player;
     Scene &scene;
 
 
     std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies; //ID to Enemy
     uint32_t current_id = 0;
-    float spawn_timer = 5.f;
+    float spawn_time = 5.f;
     float time_elapsed = 0;
+    float spawn_timer = 0;
 
-    EnemyManager(Scene::Transform *_player, std::vector<Scene::Transform *> &_spawnpoints, Scene &scene, Scene::Drawable &drawable);
+    EnemyManager(Scene::Transform *_player, std::vector<Scene::Transform *> &_spawnpoints, Scene &scene);
 
     bool update(float elapsed); //returns true iff an enemy is colliding w player
     //most likely we should be calling for each bullet and each enemy check collision with object
