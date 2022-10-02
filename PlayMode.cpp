@@ -234,7 +234,7 @@ void PlayMode::update(float elapsed) {
         if(enemy_manager->update(elapsed)) {
             //hit
             std::cout << "Resetting\n";
-            enemy_manager->reset();
+            reset();
         };
 	}
 
@@ -243,7 +243,7 @@ void PlayMode::update(float elapsed) {
 		player.cur_gun.UpdateTimer(elapsed);
 
 		if (lmb.pressed) {
-			player.cur_gun.Shoot(player.transform->rotation * glm::vec3(0.0f, 1.0f, 0.0f));
+			player.cur_gun.Shoot(player.transform->rotation * glm::vec3(0.0f, 0.0f, 0.0f));
 		}
 		else if (r.downs == 1) {
 			player.cur_gun.Reload();
@@ -317,4 +317,11 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		hud_text->draw(ammo_text.c_str(), 0.8f * float(drawable_size.x), 0.1f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
 	}
 	GL_ERRORS();
+}
+
+void PlayMode::reset() {
+    enemy_manager->reset();
+    score = 0;
+    player.transform->position = glm::vec3(0, 0, 0);
+    player.transform->rotation = glm::quat(glm::vec3(0, 0, 0));
 }

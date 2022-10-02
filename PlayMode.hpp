@@ -23,10 +23,14 @@ struct PlayMode : Mode {
 	virtual bool handle_event(SDL_Event const &, glm::uvec2 const &window_size) override;
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
+    void reset();
 
 	//----- game state -----
 
     std::shared_ptr<EnemyManager> enemy_manager;
+
+    uint32_t score;
+    uint32_t high_score;
 
 	// Input tracking
 	struct Button {
