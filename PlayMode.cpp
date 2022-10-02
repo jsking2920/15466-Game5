@@ -233,7 +233,7 @@ void PlayMode::update(float elapsed) {
 
         if(enemy_manager->update(elapsed)) {
             //hit
-            std::cout << "Test\n";
+            std::cout << "Resetting\n";
             enemy_manager->reset();
         };
 	}

@@ -11,17 +11,36 @@ transform(_transform), target(_target),  manager(_manager), id(_id)
 {
 }
 
+//code from https://gamedev.stackexchange.com/questions/151823/get-enemy-chaser-object-to-face-player-object-opengl
+//THANK YOU SO MUCH THIS CAUSED ME HEADACHES
+glm::quat AimAtPoint(glm::vec3 chaserpos, glm::vec3 tgt)
+{
+    glm::vec3 x = ( tgt - chaserpos );
+    x = glm::normalize(x);
+// y is z cross x.
+    glm::vec3 y = glm::cross(glm::vec3(0,0,1), x);
+    y = glm::normalize(y);
+// z is x cross y.
+    glm::vec3 z = glm::cross(x, y);
+
+    glm::mat4 chasermat = glm::mat4(1.0f);
+    chasermat[0] = glm::vec4(x, 0);
+    chasermat[1] = glm::vec4(y, 0);
+    chasermat[2] = glm::vec4(z, 0);
+    chasermat[3] = glm::vec4(chaserpos, 1);
+
+    return glm::toQuat(chasermat);
+}
+
 bool Enemy::update(float elapsed) {
     glm::vec3 vec_to_player = glm::normalize(target->position - transform->position);
     transform->position += elapsed * ENEMY_SPEED * vec_to_player;
 
     //rotate to face the player
-    glm::quat rotation = glm::rotation(glm::rotate(transform->rotation, glm::vec3(0, 1, 0)), vec_to_player);
-    transform->rotation = rotation * transform->rotation;
-    //check for bullets?
+    transform->rotation = AimAtPoint(transform->position, target->position);
+//check for bullets?
     //if(bullet) die();
     bool collision = check_collision_with_object(target, PLAYER_HURTBOX_RADIUS);
-    std::cout << std::to_string(collision) << "\n";
     return collision;
 }
 
@@ -34,7 +53,10 @@ bool Enemy::check_collision_with_object(Scene::Transform *collision, float radiu
     return res;
 }
 
+
 //enemy manager
+
+
 EnemyManager::EnemyManager(Scene::Transform *_player, std::vector<Scene::Transform *> &_spawnpoints, Scene &_scene, const Mesh *_mesh, GLuint _vao) :
     spawnpoints(std::move(_spawnpoints)), player(_player), scene(_scene), mesh(_mesh), vao(_vao) {
     spawn_enemy();
@@ -55,13 +77,13 @@ bool EnemyManager::update(float elapsed) {
     bool hit = false;
     for(std::pair<const unsigned int, std::shared_ptr<Enemy>> &pair : enemies) {
         bool was_hit = pair.second->update(elapsed);
-        std::cout << std::to_string(was_hit) <<"\n";
-        hit = hit && was_hit;
+//        enemy_id = pair.second->id;
+        hit = hit || was_hit;
     }
     return hit;
 }
 
-void EnemyManager::delete_enemy(uint32_t id) {
+void EnemyManager::delete_enemy(uint32_t id, bool edit_list = true) { //edit list false prevents the enemies list from being edited if it's being iterated through
     std::shared_ptr<Enemy> enemy = enemies[id];
     scene.drawables.erase(std::find_if(scene.drawables.begin(), scene.drawables.end(), [&](const Scene::Drawable &d) {
         return d.transform->name == enemy->transform->name;
@@ -69,13 +91,16 @@ void EnemyManager::delete_enemy(uint32_t id) {
     scene.transforms.erase(std::find_if(scene.transforms.begin(), scene.transforms.end(), [&](const Scene::Transform &x) {
         return x.name == enemy->transform->name;
     }));
-    enemies.erase(id); //should delete the enemy too cuz it's a shared pointer
+    if(edit_list) {
+        enemies.erase(id); //should delete the enemy too cuz it's a shared pointer
+    }
 }
 
 void EnemyManager::reset() {
-    std::for_each(enemies.begin(), enemies.end(), [&](std::pair<const unsigned int, std::shared_ptr<Enemy>> p) {
-        delete_enemy(p.first);
+    std::for_each(enemies.begin(), enemies.end(), [&](std::pair<const unsigned int, std::shared_ptr<Enemy>> &p) {
+        delete_enemy(p.first, false);
     });
+    enemies.clear();
     time_elapsed = 0;
     spawn_timer = 0;
 }

@@ -44,7 +44,7 @@ struct EnemyManager {
     bool update(float elapsed); //returns true iff an enemy is colliding w player
     //most likely we should be calling for each bullet and each enemy check collision with object
     //and if correct then delete the enemy
-    void delete_enemy(uint32_t id);
+    void delete_enemy(uint32_t id, bool edit_list);
     void spawn_enemy();
     void reset();
 };
