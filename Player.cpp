@@ -105,7 +105,7 @@ Bullet Gun::SpawnBullet(float _lifetime, glm::vec3 _velocity) {
 	//make transform
 	scene.transforms.emplace_back();
 	scene.transforms.back().name = "Bullet" + std::to_string(bullet_count);
-	scene.transforms.back().position = fire_point->make_local_to_world() * glm::vec4(transform->position, 1);
+	scene.transforms.back().position = fire_point->make_local_to_world() * glm::vec4(fire_point->position, 1);
 	scene.transforms.back().rotation = transform->parent->rotation * transform->rotation * fire_point->rotation ;
 	scene.transforms.back().scale = fire_point->scale;
 
