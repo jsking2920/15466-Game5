@@ -5,7 +5,7 @@
 
 struct Gun {
 	
-	Gun(Scene::Transform* player_camera_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _fire_rate_delay, float _reload_time);
+	Gun(Scene::Transform* player_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _fire_rate_delay, float _reload_time);
 	Gun() = default;
 	~Gun();
 

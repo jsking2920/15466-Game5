@@ -6,13 +6,15 @@
 Gun::~Gun() {
 }
 
-Gun::Gun(Scene::Transform* player_camera_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _fire_rate_delay, float _reload_time) {
+Gun::Gun(Scene::Transform* player_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _fire_rate_delay, float _reload_time) {
 	
-	// Heiarchy: Player (yaw) -> Camera (pitch) -> Gun -> Fire Point
+	// Heiarchy: Player -> Gun -> Fire Point
+	//                  -> Camera
+	// yaw comes from player, pitch applied seperately to both cam and gun
 	fire_point = _fire_point;
 	transform = _gun_transform;
 	fire_point->parent = _gun_transform;
-	//transform->parent = player_camera_transform;
+	transform->parent = player_transform;
 
 	reload_time = _reload_time;
 	max_ammo = _max_ammo;

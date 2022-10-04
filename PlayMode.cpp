@@ -67,7 +67,7 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	player.camera->transform->parent = player.transform;
 
 	// Initialize default gun
-	player.cur_gun = Gun(player.camera->transform, gun_transform, fire_point, int16_t(24), 10.0f, 0.15f, 1.2f);
+	player.cur_gun = Gun(player.transform, gun_transform, fire_point, int16_t(24), 10.0f, 0.15f, 1.2f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
@@ -137,6 +137,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		lmb.pressed = false;
 		return true;
 	} else if (evt.type == SDL_MOUSEMOTION) {
+		// Set player object rotations
 		if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
 			glm::vec2 motion = glm::vec2(
 				evt.motion.xrel / float(window_size.y),
@@ -152,6 +153,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				pitch = 0.0f;
 			}
 			player.camera->transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f)) * player.camera->transform->rotation;
+			player.cur_gun.transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f)) * player.cur_gun.transform->rotation;
 
 			return true;
 		}
@@ -297,6 +299,10 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	// HUD text
 	{ 
+		// Reticle
+		hud_text->draw(".", 0.5f * float(drawable_size.x), 0.5f * float(drawable_size.y), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
+		
+		// Ammo counter
 		std::string ammo_text = "Ammo: " + std::string(player.cur_gun.cur_ammo, '|');;
 		hud_text->draw(ammo_text.c_str(), 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
 	}
