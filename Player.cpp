@@ -50,9 +50,10 @@ bool Bullet::Update(float elapsed, std::unordered_map<uint32_t, std::shared_ptr<
 Gun::~Gun() {
 }
 
-Gun::Gun(Scene& _scene, const Mesh* _bullet_mesh, GLuint _bullet_vao, Scene::Transform* player_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _range, float _fire_rate_delay, float _reload_time) {
-	
-	scene = _scene;
+Gun::Gun(Scene& _scene, const Mesh* _bullet_mesh, GLuint _bullet_vao, Scene::Transform* player_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _range, float _fire_rate_delay, float _reload_time) :
+scene(_scene)
+{
+
 	bullet_mesh = _bullet_mesh;
 	bullet_vao = _bullet_vao;
 
@@ -116,7 +117,7 @@ Bullet Gun::SpawnBullet(float _lifetime, glm::vec3 _velocity) {
 	drawable.pipeline.start = bullet_mesh->start;
 	drawable.pipeline.count = bullet_mesh->count;
 
-	Bullet(scene.transforms.back(), _lifetime, _velocity);
+    return Bullet(&scene.transforms.back(), _lifetime, _velocity);
 }
 
 bool Gun::Shoot(glm::vec3 dir) {

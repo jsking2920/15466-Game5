@@ -26,7 +26,6 @@ struct Bullet {
 struct Gun {
 	
 	Gun(Scene& _scene, const Mesh* _bullet_mesh, GLuint _bullet_vao, Scene::Transform* player_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _range, float _fire_rate_delay, float _reload_time);
-	Gun() = default;
 	~Gun();
 
 	void Update(float elapsed, bool shoot_button_held); // call every frame with elapsed seconds
@@ -72,7 +71,7 @@ public:
 	// Camera in scene, at head of player; will be pitched by mouse up/down motion:
 	Scene::Camera* camera = nullptr;
 
-	Gun cur_gun;
+	std::shared_ptr<Gun> cur_gun;
 
 private:
 

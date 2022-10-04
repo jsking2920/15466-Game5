@@ -42,7 +42,7 @@ struct PlayMode : Mode {
 	Scene scene;
 
 	// Player info
-	Player player = Player();
+	Player player;
 
 	// Text Rendering
 	TextRenderer* hud_text = nullptr;

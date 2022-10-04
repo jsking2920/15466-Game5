@@ -71,7 +71,7 @@ PlayMode::PlayMode() : scene(*main_scene) {
 
 	// Initialize default gun
 	// TODO: Make this compile and make it less gross
-	player.cur_gun = Gun(scene, &main_meshes->lookup("Bullet"), meshes_for_lit_color_texture_program, player.transform, gun_transform, fire_point, int16_t(24), 20.0f, 50.0f, 0.15f, 1.2f);
+	player.cur_gun = std::make_shared<Gun>(scene, &main_meshes->lookup("Bullet"), meshes_for_lit_color_texture_program, player.transform, gun_transform, fire_point, int16_t(24), 20.0f, 50.0f, 0.15f, 1.2f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
@@ -157,7 +157,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				pitch = 0.0f;
 			}
 			player.camera->transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f)) * player.camera->transform->rotation;
-			player.cur_gun.transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f)) * player.cur_gun.transform->rotation;
+			player.cur_gun->transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f)) * player.cur_gun->transform->rotation;
 
 			return true;
 		}
@@ -245,15 +245,15 @@ void PlayMode::update(float elapsed) {
 
 	// Shooting
 	{
-		player.cur_gun.Update(elapsed, lmb.pressed); // TODO: Add in response to bullets killing an enemy
+		player.cur_gun->Update(elapsed, lmb.pressed); // TODO: Add in response to bullets killing an enemy
 
 		if (lmb.pressed) {
-			if (player.cur_gun.Shoot(player.transform->rotation * glm::vec3(0.0f, 0.0f, 0.0f))) {
+			if (player.cur_gun->Shoot(player.transform->rotation * glm::vec3(0.0f, 0.0f, 0.0f))) {
 				// Play gunshot sound here
 			}
 		}
 		if (r.downs == 1) {
-			if (player.cur_gun.Reload()) {
+			if (player.cur_gun->Reload()) {
 				// Play reload sound here
 			}
 		}
@@ -307,7 +307,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		hud_text->draw(".", 0.5f * float(drawable_size.x), 0.5f * float(drawable_size.y), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
 		
 		// Ammo counter
-		std::string ammo_text = "Ammo: " + std::string(player.cur_gun.cur_ammo, '|');;
+		std::string ammo_text = "Ammo: " + std::string(player.cur_gun->cur_ammo, '|');;
 		hud_text->draw(ammo_text.c_str(), 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
 	}
 	GL_ERRORS();
