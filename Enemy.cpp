@@ -137,6 +137,3 @@ void EnemyManager::spawn_enemy() {
     enemies.insert(std::pair<uint32_t, std::shared_ptr<Enemy>>(current_id, new_enemy));
     current_id++;
 }
-
-
-

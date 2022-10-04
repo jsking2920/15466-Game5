@@ -44,6 +44,7 @@ PlayMode::PlayMode() : scene(*main_scene) {
 
 	Scene::Transform* fire_point = nullptr; // reference for players firepoint to be used in Gun construction
 	Scene::Transform* gun_transform = nullptr;
+	Scene::Transform* bullet_transform = nullptr;
     Scene::Transform* enemy = nullptr;
     std::vector<Scene::Transform*> spawn_points;
 
@@ -51,12 +52,14 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	for (auto& transform : scene.transforms) {
 		if (transform.name == "Player") player.transform = &transform;
 		if (transform.name == "Gun") gun_transform = &transform;
+		if (transform.name == "Bullet") bullet_transform = &transform;
 		if (transform.name == "FirePoint") fire_point = &transform;
         if (transform.name == "Enemy") enemy = &transform;
         if (transform.name == "EnemySpawn") spawn_points.push_back(&transform);
 	}
 	if (player.transform == nullptr) throw std::runtime_error("Player transform not found.");
 	if (gun_transform == nullptr) throw std::runtime_error("Gun transform not found.");
+	if (bullet_transform == nullptr) throw std::runtime_error("Bullet transform not found.");
 	if (fire_point == nullptr) throw std::runtime_error("FirePoint transform not found.");
     if (enemy == nullptr) throw std::runtime_error("enemy transform not found.");
     if (spawn_points.size() == 0) throw std::runtime_error("spawn point transform not found.");
@@ -67,7 +70,8 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	player.camera->transform->parent = player.transform;
 
 	// Initialize default gun
-	player.cur_gun = Gun(player.transform, gun_transform, fire_point, int16_t(24), 10.0f, 0.15f, 1.2f);
+	// TODO: Make this compile and make it less gross
+	player.cur_gun = Gun(scene, &main_meshes->lookup("Bullet"), meshes_for_lit_color_texture_program, player.transform, gun_transform, fire_point, int16_t(24), 20.0f, 50.0f, 0.15f, 1.2f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
@@ -241,7 +245,7 @@ void PlayMode::update(float elapsed) {
 
 	// Shooting
 	{
-		player.cur_gun.UpdateTimer(elapsed, lmb.pressed);
+		player.cur_gun.Update(elapsed, lmb.pressed); // TODO: Add in response to bullets killing an enemy
 
 		if (lmb.pressed) {
 			if (player.cur_gun.Shoot(player.transform->rotation * glm::vec3(0.0f, 0.0f, 0.0f))) {
