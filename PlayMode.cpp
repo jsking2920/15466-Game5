@@ -248,7 +248,7 @@ void PlayMode::update(float elapsed) {
 		player.cur_gun->Update(elapsed, lmb.pressed); // TODO: Add in response to bullets killing an enemy
 
 		if (lmb.pressed) {
-			if (player.cur_gun->Shoot(player.transform->rotation * glm::vec3(0.0f, 0.0f, 0.0f))) {
+			if (player.cur_gun->Shoot(player.transform->rotation * player.cur_gun->transform->rotation * glm::vec3(0.0f, 1.0f, 0.0f))) {
 				// Play gunshot sound here
 			}
 		}

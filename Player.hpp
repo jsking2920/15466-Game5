@@ -12,7 +12,7 @@ struct Bullet {
 	Bullet() = default;
 	~Bullet();
 
-	bool Update(float elapsed, std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies); // returns true iff bullet should be destroyed (past lifetime or hit enemy)
+	bool Update(float elapsed/*, std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies*/); // returns true iff bullet should be destroyed (past lifetime or hit enemy)
 	bool CheckForCollision(std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies, uint32_t* out_id); // returns true if bullet is colliding with enemy
 
 	Scene::Transform* transform = nullptr;
@@ -47,7 +47,8 @@ struct Gun {
 
 	const Mesh* bullet_mesh;
 	GLuint bullet_vao;
-	std::vector<Bullet> bullets = std::vector<Bullet>();
+	std::list<Bullet> bullets = std::list<Bullet>(); //changed to list
+    uint32_t bullet_count = 0; //for naming
 
 	enum GunState {
 		shooting, reloading, idle

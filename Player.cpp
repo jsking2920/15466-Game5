@@ -26,7 +26,8 @@ bool Bullet::CheckForCollision(std::unordered_map<uint32_t, std::shared_ptr<Enem
 }
 
 // TODO: Figure out how to avoid passing enemies map around
-bool Bullet::Update(float elapsed, std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies) {
+// will note: maybe it would be better to just pass in a transform and radius, and just do the collision in the Gun/EnemyManager
+bool Bullet::Update(float elapsed/*, std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies*/) {
 	
 	lifetime -= elapsed;
 
@@ -36,10 +37,10 @@ bool Bullet::Update(float elapsed, std::unordered_map<uint32_t, std::shared_ptr<
 	else {
 		transform->position += velocity * elapsed;
 
-		if (CheckForCollision(enemies, &out)) {
-			std::cout << "hit enemy with id: " << out << std::endl;
-			return true;
-		}
+//		if (CheckForCollision(enemies, &out)) {
+//			std::cout << "hit enemy with id: " << out << std::endl;
+//			return true;
+//		}
 	}
 
 	return false;
@@ -62,7 +63,7 @@ scene(_scene)
 	// yaw comes from player, pitch applied seperately to both cam and gun
 	fire_point = _fire_point;
 	transform = _gun_transform;
-	fire_point->parent = _gun_transform;
+	fire_point->parent = transform;
 	transform->parent = player_transform;
 
 	reload_time = _reload_time;
@@ -92,19 +93,20 @@ void Gun::Update(float elapsed, bool shoot_button_held) {
 	}
 
 	for (Bullet b : bullets) {
-		// b.Update();
+        b.Update(elapsed);
 		// TODO: Figure out how to avoid passing enemies map around
 		// TODO: figure out how to signal that an enemy was hit (Call "Kill" function in Enemy?)
 	}
 }
 
 Bullet Gun::SpawnBullet(float _lifetime, glm::vec3 _velocity) {
+    bullet_count++;
 
 	//make transform
 	scene.transforms.emplace_back();
-	scene.transforms.back().name = "Bullet"; // TODO: Add id to end of this string
-	scene.transforms.back().position = fire_point->position;
-	scene.transforms.back().rotation = fire_point->rotation;
+	scene.transforms.back().name = "Bullet" + std::to_string(bullet_count);
+	scene.transforms.back().position = fire_point->make_local_to_world() * glm::vec4(transform->position, 1);
+	scene.transforms.back().rotation = transform->parent->rotation * transform->rotation * fire_point->rotation ;
 	scene.transforms.back().scale = fire_point->scale;
 
 	scene.drawables.emplace_back(&scene.transforms.back());
@@ -127,7 +129,8 @@ bool Gun::Shoot(glm::vec3 dir) {
 		cur_state = shooting;
 
 		// Actually shoot bullet
-		bullets.push_back(SpawnBullet(range / muzzle_velocity, muzzle_velocity * glm::normalize(dir)));
+        glm::vec3 bullet_vel = muzzle_velocity * glm::normalize(dir);
+		bullets.push_back(SpawnBullet(range / muzzle_velocity, bullet_vel));
 
 		cur_ammo = glm::clamp(--cur_ammo, int16_t(0), max_ammo);
 
