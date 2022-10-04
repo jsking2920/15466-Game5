@@ -68,7 +68,7 @@ bool EnemyManager::update(float elapsed) {
     spawn_time = MIN_SPAWN_TIMER + (50 / (time_elapsed + 11));
 
     if(spawn_timer > spawn_time) {
-        std::cout << std::to_string(spawn_time) << ", " << std::to_string(spawn_timer) << ", " << std::to_string(time_elapsed) << "\n";
+        // std::cout << std::to_string(spawn_time) << ", " << std::to_string(spawn_timer) << ", " << std::to_string(time_elapsed) << "\n";
         spawn_timer = 0;
         spawn_enemy();
     }

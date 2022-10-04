@@ -5,11 +5,11 @@
 
 struct Gun {
 	
-	Gun(Scene::Transform* player_transform, Scene::Transform* fire_point, int16_t max_ammo, float muzzle_velocity, float fire_rate_delay, float reload_time);
+	Gun(Scene::Transform* player_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _fire_rate_delay, float _reload_time);
 	Gun() = default;
 	~Gun();
 
-	void UpdateTimer(float elapsed); // call every frame with elapsed seconds
+	void UpdateTimer(float elapsed, bool shoot_button_held); // call every frame with elapsed seconds
 	bool Shoot(glm::vec3 dir); // returns if bullet was actually shot
 	bool Reload(); // returns false if gun fails to reload (only happens if it was already fully loaded or is already being reloaded)
 

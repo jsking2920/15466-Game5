@@ -70,7 +70,7 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	player.camera->transform->parent = player.transform;
 
 	// Initialize default gun
-	player.cur_gun = Gun(player.transform, fire_point, int16_t(24), 10.0f, 0.2f, 2.5f);
+	player.cur_gun = Gun(player.transform, fire_point, int16_t(24), 10.0f, 0.15f, 1.2f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
@@ -230,23 +230,29 @@ void PlayMode::update(float elapsed) {
 
 		//update player's position to respect walking:
 		player.transform->position = walkmesh->to_world_point(player.at);
+	}
 
-        if(enemy_manager->update(elapsed)) {
-            //hit
-            std::cout << "Resetting\n";
-            reset();
-        };
+	// Enemies
+	{
+		if (enemy_manager->update(elapsed)) {
+			//hit
+			reset();
+		};
 	}
 
 	// Shooting
 	{
-		player.cur_gun.UpdateTimer(elapsed);
+		player.cur_gun.UpdateTimer(elapsed, lmb.pressed);
 
 		if (lmb.pressed) {
-			player.cur_gun.Shoot(player.transform->rotation * glm::vec3(0.0f, 0.0f, 0.0f));
+			if (player.cur_gun.Shoot(player.transform->rotation * glm::vec3(0.0f, 0.0f, 0.0f))) {
+				// Play gunshot sound here
+			}
 		}
-		else if (r.downs == 1) {
-			player.cur_gun.Reload();
+		if (r.downs == 1) {
+			if (player.cur_gun.Reload()) {
+				// Play reload sound here
+			}
 		}
 	}
 
@@ -280,7 +286,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	scene.draw(*player.camera);
 
-	/* In case you are wondering if your walkmesh is lining up with your scene, try:
+	/* Walkmesh visualization for debugging
 	{
 		glDisable(GL_DEPTH_TEST);
 		DrawLines lines(player.camera->make_projection() * glm::mat4(player.camera->transform->make_world_to_local()));
@@ -292,29 +298,10 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	}
 	*/
 
-	{ //use DrawLines to overlay some text:
-		glDisable(GL_DEPTH_TEST);
-		float aspect = float(drawable_size.x) / float(drawable_size.y);
-		DrawLines lines(glm::mat4(
-			1.0f / aspect, 0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		));
-
-		constexpr float H = 0.09f;
-		lines.draw_text("Mouse motion looks; WASD moves; escape ungrabs mouse",
-			glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0x00, 0x00, 0x00, 0x00));
-		float ofs = 2.0f / drawable_size.y;
-		lines.draw_text("Mouse motion looks; WASD moves; escape ungrabs mouse",
-			glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
-
-		std::string ammo_text = "Ammo: " + std::to_string(player.cur_gun.cur_ammo);
-		hud_text->draw(ammo_text.c_str(), 0.8f * float(drawable_size.x), 0.1f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
+	// HUD text
+	{ 
+		std::string ammo_text = "Ammo: " + std::string(player.cur_gun.cur_ammo, '|');;
+		hud_text->draw(ammo_text.c_str(), 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
 	}
 	GL_ERRORS();
 }

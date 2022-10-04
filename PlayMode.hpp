@@ -46,5 +46,5 @@ struct PlayMode : Mode {
 
 	// Text Rendering
 	TextRenderer* hud_text = nullptr;
-	uint8_t hud_font_size = 48;
+	uint8_t hud_font_size = 34;
 };
