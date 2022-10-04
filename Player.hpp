@@ -20,7 +20,7 @@ struct Bullet {
 	glm::vec3 velocity = glm::vec3(0.0f);
 	float bullet_radius = 0.1f;
 
-	uint32_t* out = new uint32_t(); // used to return id of enemy hit in collision checking
+	uint32_t out; // used to return id of enemy hit in collision checking
 };
 
 struct Gun {

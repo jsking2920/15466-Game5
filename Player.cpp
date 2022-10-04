@@ -5,13 +5,13 @@
 /******** Bullets ***********/
 
 Bullet::~Bullet() {
-	if (out) delete out;
 }
 
 Bullet::Bullet(Scene::Transform* _transform, float _lifetime, glm::vec3 _velocity) {
 	transform = _transform;
 	lifetime = _lifetime;
 	velocity = _velocity;
+
 }
 
 bool Bullet::CheckForCollision(std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies, uint32_t* out_id) {
@@ -36,8 +36,8 @@ bool Bullet::Update(float elapsed, std::unordered_map<uint32_t, std::shared_ptr<
 	else {
 		transform->position += velocity * elapsed;
 
-		if (CheckForCollision(enemies, out)) {
-			std::cout << "hit enemy with id: " << *out << std::endl;
+		if (CheckForCollision(enemies, &out)) {
+			std::cout << "hit enemy with id: " << out << std::endl;
 			return true;
 		}
 	}
