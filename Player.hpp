@@ -5,7 +5,7 @@
 
 struct Gun {
 	
-	Gun(Scene::Transform* player_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _fire_rate_delay, float _reload_time);
+	Gun(Scene::Transform* player_camera_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _fire_rate_delay, float _reload_time);
 	Gun() = default;
 	~Gun();
 
@@ -13,7 +13,8 @@ struct Gun {
 	bool Shoot(glm::vec3 dir); // returns if bullet was actually shot
 	bool Reload(); // returns false if gun fails to reload (only happens if it was already fully loaded or is already being reloaded)
 
-
+	// Transform of gun mesh
+	Scene::Transform* transform = nullptr;
 	// Transform of bullet spawning location
 	Scene::Transform* fire_point = nullptr;
 	int16_t cur_ammo = 24;

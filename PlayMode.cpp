@@ -43,23 +43,20 @@ Load< WalkMeshes > main_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
 PlayMode::PlayMode() : scene(*main_scene) {
 
 	Scene::Transform* fire_point = nullptr; // reference for players firepoint to be used in Gun construction
+	Scene::Transform* gun_transform = nullptr;
     Scene::Transform* enemy = nullptr;
     std::vector<Scene::Transform*> spawn_points;
 
 	// Find player mesh and transform
 	for (auto& transform : scene.transforms) {
 		if (transform.name == "Player") player.transform = &transform;
+		if (transform.name == "Gun") gun_transform = &transform;
 		if (transform.name == "FirePoint") fire_point = &transform;
-        if (transform.name == "Enemy") {
-            std::cout <<"found enemy\n";
-            enemy = &transform;
-        }
-        if (transform.name == "EnemySpawn") {
-            std::cout << "found spawner\n";
-            spawn_points.push_back(&transform);
-        }
+        if (transform.name == "Enemy") enemy = &transform;
+        if (transform.name == "EnemySpawn") spawn_points.push_back(&transform);
 	}
 	if (player.transform == nullptr) throw std::runtime_error("Player transform not found.");
+	if (gun_transform == nullptr) throw std::runtime_error("Gun transform not found.");
 	if (fire_point == nullptr) throw std::runtime_error("FirePoint transform not found.");
     if (enemy == nullptr) throw std::runtime_error("enemy transform not found.");
     if (spawn_points.size() == 0) throw std::runtime_error("spawn point transform not found.");
@@ -70,7 +67,7 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	player.camera->transform->parent = player.transform;
 
 	// Initialize default gun
-	player.cur_gun = Gun(player.transform, fire_point, int16_t(24), 10.0f, 0.15f, 1.2f);
+	player.cur_gun = Gun(player.camera->transform, gun_transform, fire_point, int16_t(24), 10.0f, 0.15f, 1.2f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
