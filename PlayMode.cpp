@@ -307,8 +307,11 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		hud_text->draw(".", 0.5f * float(drawable_size.x), 0.5f * float(drawable_size.y), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
 		
 		// Ammo counter
-		std::string ammo_text = "Ammo: " + std::string(player.cur_gun->cur_ammo, '|');;
-		hud_text->draw(ammo_text.c_str(), 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
+		std::string cur_ammo_text = "Ammo: " + std::string(player.cur_gun->cur_ammo, '|');
+		std::string max_ammo_text = "Ammo: " + std::string(player.cur_gun->max_ammo, '|');
+		// Other order doesn't work even though that makes more sense. Might be a platform dependent race condition or other weirdness 
+		hud_text->draw(cur_ammo_text.c_str(), 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
+		hud_text->draw(max_ammo_text.c_str(), 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), float(drawable_size.x), float(drawable_size.y));
 	}
 	GL_ERRORS();
 }
