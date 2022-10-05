@@ -162,3 +162,9 @@ bool Gun::Reload() {
 	cur_state = reloading;
 	return true;
 }
+
+void Gun::Reset() {
+	cur_ammo = max_ammo;
+	internal_timer = fire_rate_delay;
+	cur_state = idle;
+}

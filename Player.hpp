@@ -31,6 +31,7 @@ struct Gun {
 	void Update(float elapsed, bool shoot_button_held, std::shared_ptr<EnemyManager> enemy_manager); // call every frame with elapsed seconds
 	bool Shoot(glm::vec3 dir); // returns if bullet was actually shot
 	bool Reload(); // returns false if gun fails to reload (only happens if it was already fully loaded or is already being reloaded)
+	void Reset();
 
 
 	Scene& scene;

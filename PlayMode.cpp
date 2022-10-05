@@ -330,4 +330,5 @@ void PlayMode::reset(float time_survived) {
 	player.at = walkmesh->nearest_walk_point(glm::vec3(0));
     player.transform->position = glm::vec3(0);
     player.transform->rotation = glm::quat(glm::vec3(0));
+	player.cur_gun->Reset();
 }
