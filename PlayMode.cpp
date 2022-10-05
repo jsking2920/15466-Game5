@@ -8,6 +8,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <random>
+#include <regex>
 
 GLuint meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > main_meshes(LoadTagDefault, []() -> MeshBuffer const * {
@@ -55,7 +56,7 @@ PlayMode::PlayMode() : scene(*main_scene) {
 		if (transform.name == "Bullet") bullet_transform = &transform;
 		if (transform.name == "FirePoint") fire_point = &transform;
         if (transform.name == "Enemy") enemy = &transform;
-        if (transform.name == "EnemySpawn") spawn_points.push_back(&transform);
+        if (std::regex_match(transform.name, std::regex("EnemySpawn.*"))) spawn_points.push_back(&transform); // Anything named EnemySpawn, EnemySpawn2, EnemySpawnAlpha, etc.
 	}
 	if (player.transform == nullptr) throw std::runtime_error("Player transform not found.");
 	if (gun_transform == nullptr) throw std::runtime_error("Gun transform not found.");
