@@ -12,8 +12,8 @@ struct Bullet {
 	Bullet() = default;
 	~Bullet();
 
-	bool Update(float elapsed/*, std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies*/); // returns true iff bullet should be destroyed (past lifetime or hit enemy)
-	bool CheckForCollision(std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies, uint32_t* out_id); // returns true if bullet is colliding with enemy
+	bool Update(float elapsed, std::shared_ptr<EnemyManager> enemy_manager); // returns true iff bullet should be destoryed (hit enemy or passed lifetime)
+	bool CheckForCollision(std::shared_ptr<EnemyManager> enemy_manager, uint32_t* out_id); // returns true if bullet is colliding with enemy
 
 	Scene::Transform* transform = nullptr;
 	float lifetime = 2.0f;
@@ -28,12 +28,12 @@ struct Gun {
 	Gun(Scene& _scene, const Mesh* _bullet_mesh, GLuint _bullet_vao, Scene::Transform* player_transform, Scene::Transform* _gun_transform, Scene::Transform* _fire_point, int16_t _max_ammo, float _muzzle_velocity, float _range, float _fire_rate_delay, float _reload_time);
 	~Gun();
 
-	void Update(float elapsed, bool shoot_button_held); // call every frame with elapsed seconds
+	void Update(float elapsed, bool shoot_button_held, std::shared_ptr<EnemyManager> enemy_manager); // call every frame with elapsed seconds
 	bool Shoot(glm::vec3 dir); // returns if bullet was actually shot
 	bool Reload(); // returns false if gun fails to reload (only happens if it was already fully loaded or is already being reloaded)
 
 
-	Scene& scene; // TODO: figure out compiler errors with this
+	Scene& scene;
 	// Transform of gun mesh
 	Scene::Transform* transform = nullptr;
 	// Transform of bullet spawning location
@@ -47,7 +47,7 @@ struct Gun {
 
 	const Mesh* bullet_mesh;
 	GLuint bullet_vao;
-	std::list<Bullet> bullets = std::list<Bullet>(); //changed to list
+	std::list<Bullet> bullets = std::list<Bullet>();
     uint32_t bullet_count = 0; //for naming
 
 	enum GunState {

@@ -8,15 +8,15 @@ Bullet::~Bullet() {
 }
 
 Bullet::Bullet(Scene::Transform* _transform, float _lifetime, glm::vec3 _velocity) {
+
 	transform = _transform;
 	lifetime = _lifetime;
 	velocity = _velocity;
-
 }
 
-bool Bullet::CheckForCollision(std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies, uint32_t* out_id) {
+bool Bullet::CheckForCollision(std::shared_ptr<EnemyManager> enemy_manager, uint32_t* out_id) {
 	
-	for (auto e : enemies) {
+	for (auto e : enemy_manager->enemies) {
 		if (e.second->check_collision_with_object(transform, bullet_radius)) {
 			*out_id = e.first;
 			return true;
@@ -25,9 +25,9 @@ bool Bullet::CheckForCollision(std::unordered_map<uint32_t, std::shared_ptr<Enem
 	return false;
 }
 
-// TODO: Figure out how to avoid passing enemies map around
+// TODO: Figure out how to avoid passing enemy manager around
 // will note: maybe it would be better to just pass in a transform and radius, and just do the collision in the Gun/EnemyManager
-bool Bullet::Update(float elapsed/*, std::unordered_map<uint32_t, std::shared_ptr<Enemy>> enemies*/) {
+bool Bullet::Update(float elapsed, std::shared_ptr<EnemyManager> enemy_manager) {
 	
 	lifetime -= elapsed;
 
@@ -37,10 +37,10 @@ bool Bullet::Update(float elapsed/*, std::unordered_map<uint32_t, std::shared_pt
 	else {
 		transform->position += velocity * elapsed;
 
-//		if (CheckForCollision(enemies, &out)) {
-//			std::cout << "hit enemy with id: " << out << std::endl;
-//			return true;
-//		}
+		if (CheckForCollision(enemy_manager, &out)) {
+			enemy_manager->delete_enemy(out, true);
+			return true;
+		}
 	}
 
 	return false;
@@ -75,7 +75,8 @@ scene(_scene)
 	range = _range;
 }
 
-void Gun::Update(float elapsed, bool shoot_button_held) {
+// TODO: Figure out how to avoid passing enemy manager around
+void Gun::Update(float elapsed, bool shoot_button_held, std::shared_ptr<EnemyManager> enemy_manager) {
 
 	if (cur_state == reloading) {
 		reload_timer -= elapsed;
@@ -92,10 +93,21 @@ void Gun::Update(float elapsed, bool shoot_button_held) {
 		internal_timer = 0.0f; // means that you can tap fire at infinite fire rate
 	}
 
-	for (Bullet b : bullets) {
-        b.Update(elapsed);
-		// TODO: Figure out how to avoid passing enemies map around
-		// TODO: figure out how to signal that an enemy was hit (Call "Kill" function in Enemy?)
+
+	for (auto b = bullets.begin(); b != bullets.end(); b++) {
+		if (b->Update(elapsed, enemy_manager)) {
+			// TODO: implement scoring
+			// TODO: play enemy hit sound
+
+			// Delete bullet from scene lists and gun list
+			scene.drawables.erase(std::find_if(scene.drawables.begin(), scene.drawables.end(), [&](const Scene::Drawable& d) {
+				return d.transform->name == b->transform->name;
+			}));
+			scene.transforms.erase(std::find_if(scene.transforms.begin(), scene.transforms.end(), [&](const Scene::Transform& t) {
+				return t.name == b->transform->name;
+			}));
+			bullets.erase(b);
+		}
 	}
 }
 

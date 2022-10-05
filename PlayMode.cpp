@@ -70,7 +70,6 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	player.camera->transform->parent = player.transform;
 
 	// Initialize default gun
-	// TODO: Make this compile and make it less gross
 	player.cur_gun = std::make_shared<Gun>(scene, &main_meshes->lookup("Bullet"), meshes_for_lit_color_texture_program, player.transform, gun_transform, fire_point, int16_t(24), 20.0f, 50.0f, 0.15f, 1.2f);
 
 	//start player walking at nearest walk point:
@@ -245,7 +244,7 @@ void PlayMode::update(float elapsed) {
 
 	// Shooting
 	{
-		player.cur_gun->Update(elapsed, lmb.pressed); // TODO: Add in response to bullets killing an enemy
+		player.cur_gun->Update(elapsed, lmb.pressed, enemy_manager); // TODO: Add in response to bullets killing an enemy
 
 		if (lmb.pressed) {
 			if (player.cur_gun->Shoot(player.transform->rotation * player.cur_gun->transform->rotation * glm::vec3(0.0f, 1.0f, 0.0f))) {
