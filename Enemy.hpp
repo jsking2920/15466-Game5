@@ -7,7 +7,7 @@
 
 #define ENEMY_HURTBOX_RADIUS 1.f
 #define PLAYER_HURTBOX_RADIUS 1.f
-#define ENEMY_SPEED 2.0f
+#define ENEMY_SPEED 10.0f
 #define MIN_SPAWN_TIMER 0.5f
 #define ENEMY_SPAWN_DISTANCE 10.f
 

@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-TextRenderer::TextRenderer(const char* font_file, uint8_t font_size)
+TextRenderer::TextRenderer(std::string font_file, uint8_t font_size)
 {
     // initialization based on: https://github.com/harfbuzz/harfbuzz-tutorial/blob/master/hello-harfbuzz-freetype.c
     // Initialize FreeType and create FreeType font face
@@ -24,7 +24,7 @@ TextRenderer::TextRenderer(const char* font_file, uint8_t font_size)
 
     ft_error = FT_Init_FreeType(&ft_library);
     if (ft_error) throw std::runtime_error("FT_Init failed!");
-    ft_error = FT_New_Face(ft_library, font_file, 0, &ft_face);
+    ft_error = FT_New_Face(ft_library, font_file.c_str(), 0, &ft_face);
     if (ft_error) throw std::runtime_error("FT_New_Face failed!");
     ft_error = FT_Set_Char_Size(ft_face, 0, font_size * 64, 0, 0);
     if (ft_error) throw std::runtime_error("FT_Set_Char_Size failed!");
@@ -127,14 +127,12 @@ TextRenderer::~TextRenderer() {
     glDeleteVertexArrays(1, &VAO);
 }
 
-void TextRenderer::draw(const char* text, float x, float y, float scale, glm::vec3 color, float window_width, float window_height) {
-    
-    std::string text_s = std::string(text);
+void TextRenderer::draw(std::string text, float x, float y, float scale, glm::vec3 color, float window_width, float window_height) {
 
     // If rendering new text, reshape with HarfBuzz (note: would break everything if the first time this was called text == cur_text)
-    if (text_s.compare(cur_text) != 0) {
+    if (text.compare(cur_text) != 0) {
         
-        cur_text = text_s;
+        cur_text = text;
         
         // Based on: https://github.com/harfbuzz/harfbuzz-tutorial/blob/master/hello-harfbuzz-freetype.c
         // Destroy and recreate hb-buffer with new text
@@ -143,7 +141,7 @@ void TextRenderer::draw(const char* text, float x, float y, float scale, glm::ve
         }
         hb_buffer = hb_buffer_create();
         
-        hb_buffer_add_utf8(hb_buffer, text, -1, 0, -1);
+        hb_buffer_add_utf8(hb_buffer, text.c_str(), -1, 0, -1);
         hb_buffer_guess_segment_properties(hb_buffer);
 
         // Shape it
@@ -171,7 +169,7 @@ void TextRenderer::draw(const char* text, float x, float y, float scale, glm::ve
     // iterate through all characters
     uint32_t i = 0;
     std::string::const_iterator c;
-    for (c = text_s.begin(); c != text_s.end(); c++)
+    for (c = text.begin(); c != text.end(); c++)
     {
         Character ch = Characters[*c];
 
@@ -214,4 +212,16 @@ void TextRenderer::draw(const char* text, float x, float y, float scale, glm::ve
     glBindTexture(GL_TEXTURE_2D, 0);
 
     GL_ERRORS();
+}
+
+std::string TextRenderer::format_time(float seconds) {
+
+    std::string sec = std::to_string(int(seconds) % 60);
+    std::string fractional_sec = std::to_string(int(seconds * 100) % 100);
+
+    if (seconds >= 60.0f) {
+        std::string minutes = std::to_string(int(seconds) / 60);
+        return minutes + ":" + sec + "." + fractional_sec;
+    }
+    return sec + "." + fractional_sec;
 }

@@ -71,13 +71,13 @@ PlayMode::PlayMode() : scene(*main_scene) {
 	player.camera->transform->parent = player.transform;
 
 	// Initialize default gun
-	player.cur_gun = std::make_shared<Gun>(scene, &main_meshes->lookup("Bullet"), meshes_for_lit_color_texture_program, player.transform, gun_transform, fire_point, int16_t(24), 20.0f, 50.0f, 0.15f, 1.2f);
+	player.cur_gun = std::make_shared<Gun>(scene, &main_meshes->lookup("Bullet"), meshes_for_lit_color_texture_program, player.transform, gun_transform, fire_point, int16_t(18), 125.0f, 80.0f, 0.25f, 1.5f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
 	// Set up text renderer
-	hud_text = new TextRenderer(data_path("SpecialElite-Regular.ttf").c_str(), hud_font_size);
+	hud_text = new TextRenderer(data_path("SpecialElite-Regular.ttf"), hud_font_size);
 
     //using shared pointer to ensure cleanup and enable usage of a pointer for definition/declaration separation
     enemy_manager = std::make_shared<EnemyManager>(player.transform, spawn_points, scene, &main_meshes->lookup("Enemy"), meshes_for_lit_color_texture_program);
@@ -171,7 +171,6 @@ void PlayMode::update(float elapsed) {
 	// Player walking
 	{
 		//combine inputs into a move:
-		constexpr float PlayerSpeed = 3.0f;
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) move.x =-1.0f;
 		if (!left.pressed && right.pressed) move.x = 1.0f;
@@ -179,7 +178,7 @@ void PlayMode::update(float elapsed) {
 		if (!down.pressed && up.pressed) move.y = 1.0f;
 
 		//make it so that moving diagonally doesn't go faster:
-		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
+		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * player.speed * elapsed;
 
 		//get move in world coordinate system:
 		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
@@ -239,7 +238,7 @@ void PlayMode::update(float elapsed) {
 	{
 		if (enemy_manager->update(elapsed)) {
 			//hit
-			reset();
+			reset(game_timer);
 		};
 	}
 
@@ -258,6 +257,8 @@ void PlayMode::update(float elapsed) {
 			}
 		}
 	}
+
+	game_timer += elapsed;
 
 	//reset button press counters:
 	left.downs = 0;
@@ -310,15 +311,22 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		std::string cur_ammo_text = "Ammo: " + std::string(player.cur_gun->cur_ammo, '|');
 		std::string max_ammo_text = "Ammo: " + std::string(player.cur_gun->max_ammo, '|');
 		// Other order doesn't work even though that makes more sense. Might be a platform dependent race condition or other weirdness 
-		hud_text->draw(cur_ammo_text.c_str(), 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
-		hud_text->draw(max_ammo_text.c_str(), 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), float(drawable_size.x), float(drawable_size.y));
+		hud_text->draw(cur_ammo_text, 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
+		hud_text->draw(max_ammo_text, 0.02f * float(drawable_size.x), 0.035f * float(drawable_size.y), 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), float(drawable_size.x), float(drawable_size.y));
+
+		// Timer + best time
+		hud_text->draw(hud_text->format_time(game_timer), 0.48f * float(drawable_size.x), 0.93f * float(drawable_size.y), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), float(drawable_size.x), float(drawable_size.y));
+		hud_text->draw("Best: " + hud_text->format_time(best_time), 0.7f * float(drawable_size.x), 0.93f * float(drawable_size.y), 0.7f, glm::vec3(0.7f, 0.7f, 0.7f), float(drawable_size.x), float(drawable_size.y));
 	}
 	GL_ERRORS();
 }
 
-void PlayMode::reset() {
+void PlayMode::reset(float time_survived) {
     enemy_manager->reset();
-    score = 0;
+    game_timer = 0.0f;
+	if (time_survived > best_time) {
+		best_time = time_survived;
+	}
     player.transform->position = glm::vec3(0, 0, 0);
     player.transform->rotation = glm::quat(glm::vec3(0, 0, 0));
 }

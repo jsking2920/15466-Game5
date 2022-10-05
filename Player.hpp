@@ -72,6 +72,7 @@ public:
 	// Camera in scene, at head of player; will be pitched by mouse up/down motion:
 	Scene::Camera* camera = nullptr;
 
+	float speed = 6.0f;
 	std::shared_ptr<Gun> cur_gun;
 
 private:

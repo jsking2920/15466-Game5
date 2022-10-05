@@ -23,9 +23,10 @@
 class TextRenderer {
 
 public:
-    TextRenderer(const char* font_file, uint8_t font_size);
+    TextRenderer(std::string font_file, uint8_t font_size);
     ~TextRenderer();
-    void draw(const char* text, float x, float y, float scale, glm::vec3 color, float window_width, float window_height);
+    void draw(std::string text, float x, float y, float scale, glm::vec3 color, float window_width, float window_height);
+    std::string format_time(float seconds); // returns string in format 12:3.45 (minutes:seconds.decimal_seconds)
 
 private:
     FT_Face ft_face;
