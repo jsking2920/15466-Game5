@@ -327,6 +327,7 @@ void PlayMode::reset(float time_survived) {
 	if (time_survived > best_time) {
 		best_time = time_survived;
 	}
-    player.transform->position = glm::vec3(0, 0, 0);
-    player.transform->rotation = glm::quat(glm::vec3(0, 0, 0));
+	player.at = walkmesh->nearest_walk_point(glm::vec3(0));
+    player.transform->position = glm::vec3(0);
+    player.transform->rotation = glm::quat(glm::vec3(0));
 }
