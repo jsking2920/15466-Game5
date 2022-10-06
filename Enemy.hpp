@@ -5,7 +5,7 @@
 #include "LitColorTextureProgram.hpp"
 #include "Mesh.hpp"
 
-#define ENEMY_HURTBOX_RADIUS 1.f
+#define ENEMY_HURTBOX_RADIUS 2.f
 #define PLAYER_HURTBOX_RADIUS 1.f
 #define ENEMY_SPEED 10.0f
 #define MIN_SPAWN_TIMER 0.5f

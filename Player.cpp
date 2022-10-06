@@ -94,6 +94,7 @@ void Gun::Update(float elapsed, bool shoot_button_held, std::shared_ptr<EnemyMan
 	}
 
 
+    std::list<std::string> deletion_list;
 	for (auto b = bullets.begin(); b != bullets.end(); b++) {
 		if (b->Update(elapsed, enemy_manager)) {
 			// TODO: implement scoring
@@ -106,9 +107,16 @@ void Gun::Update(float elapsed, bool shoot_button_held, std::shared_ptr<EnemyMan
 			scene.transforms.erase(std::find_if(scene.transforms.begin(), scene.transforms.end(), [&](const Scene::Transform& t) {
 				return t.name == b->transform->name;
 			}));
-			bullets.erase(b);
+//            test.push_back(b);
+            deletion_list.push_back(b->transform->name);
 		}
 	}
+    std::for_each(deletion_list.begin(), deletion_list.end(), [&](std::string s) {
+        bullets.erase(std::find_if(bullets.begin(), bullets.end(), [&](Bullet b) {
+            return b.transform->name == s;
+        }));
+    });
+    deletion_list.clear();
 }
 
 Bullet Gun::SpawnBullet(float _lifetime, glm::vec3 _velocity) {
