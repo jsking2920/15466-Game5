@@ -41,6 +41,10 @@ Load< WalkMeshes > main_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
 	return ret;
 });
 
+Load< Sound::Sample > gunshot_sample(LoadTagDefault, []() -> Sound::Sample const* {
+	return new Sound::Sample(data_path("Gunshot.opus"));
+});
+
 PlayMode::PlayMode() : scene(*main_scene) {
 
 	Scene::Transform* fire_point = nullptr; // reference for players firepoint to be used in Gun construction
@@ -248,7 +252,7 @@ void PlayMode::update(float elapsed) {
 
 		if (lmb.pressed) {
 			if (player.cur_gun->Shoot(player.transform->rotation * player.cur_gun->transform->rotation * glm::vec3(0.0f, 1.0f, 0.0f))) {
-				// Play gunshot sound here
+				Sound::play(*gunshot_sample);
 			}
 		}
 		if (r.downs == 1) {

@@ -9,6 +9,7 @@
 #include "data_path.hpp"
 #include "LitColorTextureProgram.hpp"
 #include "Enemy.hpp"
+#include "Sound.hpp"
 
 #include <glm/glm.hpp>
 
