@@ -1,6 +1,7 @@
 #include "Player.hpp"
 
 #include <iostream>
+#include <algorithm>
 
 /******** Bullets ***********/
 
